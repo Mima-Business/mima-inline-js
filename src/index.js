@@ -1,5 +1,6 @@
 import { openCheckout } from "./core/checkout.js";
 import { renderButton } from "./ui/button.js";
+import { injectStyles } from "./ui/injectStyles.js";
 import { renderOption } from "./ui/option.js";
 
 function ensureOpts(opts) {
@@ -17,6 +18,7 @@ export const MimaCheckout = {
 
 // UMD-style global attach
 if (typeof window !== "undefined") {
+  injectStyles();
   window.MimaCheckout = MimaCheckout;
 }
 

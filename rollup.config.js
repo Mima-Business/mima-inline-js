@@ -1,5 +1,6 @@
 import replace from "@rollup/plugin-replace";
 import dotenv from "dotenv";
+import url from "@rollup/plugin-url";
 
 dotenv.config();
 

@@ -178,11 +178,15 @@ export async function openCheckout(opts) {
   poweredText.textContent = "Powered by";
   powered.appendChild(poweredText);
 
+  const logoUrl =
+    "https://e3bc7d7a5a59a4dca7c1c17bfa0270e4b3.s3.us-east-2.amazonaws.com/e8b61357-334e-4879-90b6-6fbe722cc54c-7e5a1560-43a6-4dea-ac4a-bbbda8598ab3-mima-logo.png";
+
   // If you have a logo URL available, append it. (See note below)
-  if (window.MIMA_LOGO_URL) {
-    const img = ce("img", "mima-powered-logo");
-    img.src = window.MIMA_LOGO_URL;
+  if (logoUrl) {
+    const img = document.createElement("img");
+    img.src = logoUrl;
     img.alt = "Mima Logo";
+    img.className = "mima-powered-logo";
     powered.appendChild(img);
   }
 
