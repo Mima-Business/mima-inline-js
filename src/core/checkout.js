@@ -27,16 +27,16 @@ export async function openCheckout(opts) {
     bookings: "/invoices/accept-booking-invoice",
   };
 
-  console.log("baseUrl", baseUrl);
-
   const chosenBase = testMode ? testBaseUrl || baseUrl : baseUrl;
+  console.log("chosenBase", chosenBase);
+  console.log("payload", payload);
+
   if (!chosenBase)
     throw new Error(
       "MimaCheckout: `baseUrl` (and optionally `testBaseUrl`) is required."
     );
-
+  const currencyCode = payload?.order?.currencyCode;
   const modal = createModal({ onClose });
-  modal.open();
 
   // Loading state
   const loadNode = ce("div", "mima-center");
@@ -52,6 +52,7 @@ export async function openCheckout(opts) {
       signature,
     });
   } catch (e) {
+    modal.open();
     const err = ce("div", "mima-error");
     err.textContent = e.message;
     setBodyContent(modal, err);
@@ -62,6 +63,7 @@ export async function openCheckout(opts) {
     const pk = testMode
       ? testPaystackPublicKey || paystackPublicKey
       : paystackPublicKey;
+
     if (!pk) {
       setBodyContent(modal, errorNode("Paystack key missing."));
       return;
@@ -112,6 +114,8 @@ export async function openCheckout(opts) {
   }
 
   // Stripe flow
+  modal.open();
+
   const stripeKey = testMode
     ? testStripePublicKey || stripePublicKey
     : stripePublicKey;
@@ -124,12 +128,69 @@ export async function openCheckout(opts) {
     return;
   }
 
-  // Mount PaymentElement + Pay button
+  // Build UI
   const wrap = ce("div", "mima-stripe-wrap");
+
+  // Top info (amount + note)
+  const top = ce("div", "mima-top");
+  const topP = ce("p");
+  topP.style.color = "#464646";
+  const amtSpan = ce("span", "mima-top-span");
+  amtSpan.textContent = `${invoice.currencyCode} ${invoice.transactionAmount}`;
+  topP.textContent = "Pay ";
+  topP.appendChild(amtSpan);
+
+  const note = ce("p", "mima-top-first");
+  note.textContent = "All transactions are secure and encrypted.";
+
+  top.appendChild(topP);
+  top.appendChild(note);
+  wrap.appendChild(top);
+
+  // PaymentElement mount area
   const mountPoint = ce("div", "mima-stripe-mount");
   wrap.appendChild(mountPoint);
+
+  // Actions (Go Back | Pay now)
+  const actions = ce("div", "mima-stripe-actions");
+  const backBtn = ce("button", "mima-btn outlined full");
+  backBtn.type = "button";
+  backBtn.textContent = "Go Back";
+  backBtn.addEventListener("click", () => {
+    modal.close(); // mirrors goBack in React
+    onClose && onClose();
+  });
+
+  const payBtn = ce("button", "mima-btn full");
+  payBtn.type = "button";
+  payBtn.textContent = "Pay now";
+  actions.appendChild(backBtn);
+  actions.appendChild(payBtn);
+  wrap.appendChild(actions);
+
+  // Powered by (with optional logo)
+  const powered = ce("a", "mima-powered");
+  powered.href = "https://mimapay.africa/";
+  powered.target = "_blank";
+  powered.rel = "noopener noreferrer";
+
+  const poweredText = ce("span");
+  poweredText.textContent = "Powered by";
+  powered.appendChild(poweredText);
+
+  // If you have a logo URL available, append it. (See note below)
+  if (window.MIMA_LOGO_URL) {
+    const img = ce("img", "mima-powered-logo");
+    img.src = window.MIMA_LOGO_URL;
+    img.alt = "Mima Logo";
+    powered.appendChild(img);
+  }
+
+  wrap.appendChild(powered);
+
   setBodyContent(modal, wrap);
 
+  // Mount Stripe + wire the Pay button
   try {
     await mountStripe({
       clientSecret: invoice.stripeSessionId,
@@ -137,7 +198,17 @@ export async function openCheckout(opts) {
       container: mountPoint,
       currencyCode: invoice.currencyCode,
       amount: invoice.transactionAmount,
-      onSuccess: () => onSuccess && onSuccess(),
+      // ✨ NEW: hand the pay button to Stripe mount so it binds confirmPayment
+      payButtonEl: payBtn,
+      // Optional: where to return if 3DS redirect happens
+      returnUrl:
+        payload?.callBackUrl && payload.callBackUrl.startsWith("http")
+          ? payload.callBackUrl
+          : window.location.href,
+      onSuccess: () => {
+        onSuccess && onSuccess();
+        modal.close();
+      },
       onClose: () => modal.close(),
     });
   } catch (e) {

@@ -1,7 +1,9 @@
 import replace from "@rollup/plugin-replace";
-import { defineConfig } from "rollup";
+import dotenv from "dotenv";
 
-export default defineConfig({
+dotenv.config();
+
+export default {
   input: "src/index.js",
   output: {
     file: "dist/bundle.js",
@@ -29,4 +31,4 @@ export default defineConfig({
       ),
     }),
   ],
-});
+};

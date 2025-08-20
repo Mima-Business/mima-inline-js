@@ -1,5 +1,8 @@
 import { loadScript } from "./utils.js";
 const PAYSTACK_JS = "https://js.paystack.co/v1/inline.js";
+{
+  /* <script src="https://js.paystack.co/v2/inline.js"></script> */
+}
 
 export async function startPaystack({
   publicKey,

@@ -115,36 +115,55 @@
     container,
     currencyCode,
     amount,
+    payButtonEl,
+    returnUrl,
     onSuccess,
     onClose,
   }) {
     await loadScript(STRIPE_JS);
     if (!window.Stripe) throw new Error("Stripe.js failed to load");
+
     const stripe = window.Stripe(publishableKey);
     const elements = stripe.elements({
       clientSecret,
       appearance: { theme: "stripe" },
     });
+
+    // Mount PaymentElement only
     const paymentEl = elements.create("payment");
     paymentEl.mount(container);
 
-    const payBtn = ce("button", "mima-btn");
-    payBtn.type = "button";
-    payBtn.textContent = `Pay ${formatAmount(amount, currencyCode)}`;
+    // Decide which Pay button to use
+    const payBtn =
+      payButtonEl ||
+      (() => {
+        const b = ce("button", "mima-btn");
+        b.type = "button";
+        b.textContent = `Pay ${formatAmount(amount, currencyCode)}`;
+        container.parentNode.appendChild(b);
+        return b;
+      })();
+
     const err = ce("div", "mima-error");
-    append(container.parentNode, payBtn, err);
 
     payBtn.addEventListener("click", async () => {
       payBtn.disabled = true;
+      err.textContent = "";
+
       const { error } = await stripe.confirmPayment({
         elements,
-        confirmParams: {},
+        confirmParams: returnUrl ? { return_url: returnUrl } : {},
+        redirect: "if_required",
       });
+
       payBtn.disabled = false;
+
       if (error) {
+        container.parentNode.appendChild(err);
         err.textContent = error.message || "Payment failed.";
         return;
       }
+
       onSuccess && onSuccess();
       onClose && onClose();
     });
@@ -188,31 +207,37 @@
     handler.openIframe();
   }
 
-  const STRIPE_PUBLIC_KEY = undefined;
-  const PAYSTACK_PUBLIC_KEY = undefined;
-  const BASE_API_URL = undefined;
+  const STRIPE_PUBLIC_KEY = "pk_live_51MZRkkCxdM6WOQdWPUtgMWcdORUTEPS4o4EL1CydZ8pcWBw1PTjkcenRZmcMFCaZaknuuAKq0488T8s9ywaOKZwS00euXJ5lap";
+  const PAYSTACK_PUBLIC_KEY = "pk_live_8f9d0f43221de55a2139081d8a530fd65a15e960";
+  const BASE_API_URL = "https://api.trymima.com/v1";
+  const TEST_STRIPE_PUBLIC_KEY = "pk_test_51MZRkkCxdM6WOQdWKpad49vDaWdY0xINxv5Rkipm2RZJ0jkYDtD17mpPlWTDdceDJXKDpEeqXeS8Y7GMxu38Lub300QAKMidAd";
+  const TEST_PAYSTACK_PUBLIC_KEY = "pk_test_c089002666ab7778df8fe31313c5bba3d6f69914";
+  const TEST_BASE_API_URL = "https://dev.trymima.com/v1";
 
   async function openCheckout(opts) {
     const { payload, signature, testMode = false, onSuccess, onClose } = opts;
 
     const baseUrl = BASE_API_URL;
+    const testBaseUrl = TEST_BASE_API_URL;
     const stripePublicKey = STRIPE_PUBLIC_KEY;
+    const testStripePublicKey = TEST_STRIPE_PUBLIC_KEY;
     const paystackPublicKey = PAYSTACK_PUBLIC_KEY;
+    const testPaystackPublicKey = TEST_PAYSTACK_PUBLIC_KEY;
     const urls = {
       product: "/invoices/new/checkout",
       bookings: "/invoices/accept-booking-invoice",
     };
 
-    console.log("baseUrl", baseUrl);
+    const chosenBase = testMode ? testBaseUrl  : baseUrl;
+    console.log("chosenBase", chosenBase);
+    console.log("payload", payload);
 
-    const chosenBase = testMode ? baseUrl : baseUrl;
     if (!chosenBase)
       throw new Error(
         "MimaCheckout: `baseUrl` (and optionally `testBaseUrl`) is required."
       );
-
+    payload?.order?.currencyCode;
     const modal = createModal({ onClose });
-    modal.open();
 
     // Loading state
     const loadNode = ce("div", "mima-center");
@@ -228,6 +253,7 @@
         signature,
       });
     } catch (e) {
+      modal.open();
       const err = ce("div", "mima-error");
       err.textContent = e.message;
       setBodyContent(modal, err);
@@ -236,8 +262,9 @@
 
     if (invoice?.currencyCode === "NGN") {
       const pk = testMode
-        ? paystackPublicKey
+        ? testPaystackPublicKey 
         : paystackPublicKey;
+
       if (!pk) {
         setBodyContent(modal, errorNode("Paystack key missing."));
         return;
@@ -288,8 +315,10 @@
     }
 
     // Stripe flow
+    modal.open();
+
     const stripeKey = testMode
-      ? stripePublicKey
+      ? testStripePublicKey 
       : stripePublicKey;
     if (!stripeKey) {
       setBodyContent(modal, errorNode("Stripe key missing."));
@@ -300,12 +329,69 @@
       return;
     }
 
-    // Mount PaymentElement + Pay button
+    // Build UI
     const wrap = ce("div", "mima-stripe-wrap");
+
+    // Top info (amount + note)
+    const top = ce("div", "mima-top");
+    const topP = ce("p");
+    topP.style.color = "#464646";
+    const amtSpan = ce("span", "mima-top-span");
+    amtSpan.textContent = `${invoice.currencyCode} ${invoice.transactionAmount}`;
+    topP.textContent = "Pay ";
+    topP.appendChild(amtSpan);
+
+    const note = ce("p", "mima-top-first");
+    note.textContent = "All transactions are secure and encrypted.";
+
+    top.appendChild(topP);
+    top.appendChild(note);
+    wrap.appendChild(top);
+
+    // PaymentElement mount area
     const mountPoint = ce("div", "mima-stripe-mount");
     wrap.appendChild(mountPoint);
+
+    // Actions (Go Back | Pay now)
+    const actions = ce("div", "mima-stripe-actions");
+    const backBtn = ce("button", "mima-btn outlined full");
+    backBtn.type = "button";
+    backBtn.textContent = "Go Back";
+    backBtn.addEventListener("click", () => {
+      modal.close(); // mirrors goBack in React
+      onClose && onClose();
+    });
+
+    const payBtn = ce("button", "mima-btn full");
+    payBtn.type = "button";
+    payBtn.textContent = "Pay now";
+    actions.appendChild(backBtn);
+    actions.appendChild(payBtn);
+    wrap.appendChild(actions);
+
+    // Powered by (with optional logo)
+    const powered = ce("a", "mima-powered");
+    powered.href = "https://mimapay.africa/";
+    powered.target = "_blank";
+    powered.rel = "noopener noreferrer";
+
+    const poweredText = ce("span");
+    poweredText.textContent = "Powered by";
+    powered.appendChild(poweredText);
+
+    // If you have a logo URL available, append it. (See note below)
+    if (window.MIMA_LOGO_URL) {
+      const img = ce("img", "mima-powered-logo");
+      img.src = window.MIMA_LOGO_URL;
+      img.alt = "Mima Logo";
+      powered.appendChild(img);
+    }
+
+    wrap.appendChild(powered);
+
     setBodyContent(modal, wrap);
 
+    // Mount Stripe + wire the Pay button
     try {
       await mountStripe({
         clientSecret: invoice.stripeSessionId,
@@ -313,7 +399,17 @@
         container: mountPoint,
         currencyCode: invoice.currencyCode,
         amount: invoice.transactionAmount,
-        onSuccess: () => onSuccess && onSuccess(),
+        // ✨ NEW: hand the pay button to Stripe mount so it binds confirmPayment
+        payButtonEl: payBtn,
+        // Optional: where to return if 3DS redirect happens
+        returnUrl:
+          payload?.callBackUrl && payload.callBackUrl.startsWith("http")
+            ? payload.callBackUrl
+            : window.location.href,
+        onSuccess: () => {
+          onSuccess && onSuccess();
+          modal.close();
+        },
         onClose: () => modal.close(),
       });
     } catch (e) {

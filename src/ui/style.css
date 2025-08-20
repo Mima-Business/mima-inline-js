@@ -170,3 +170,39 @@
   border: 1px solid #eee;
   border-radius: 12px;
 }
+
+.mima-top {
+  margin-bottom: 8px;
+}
+.mima-top-span {
+  font-weight: 700;
+}
+.mima-top-first {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.mima-stripe-actions {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.mima-powered {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--dark-700);
+  text-decoration: none;
+  font-size: 12px;
+}
+.mima-powered:hover {
+  color: var(--dark-900);
+}
+.mima-powered-logo {
+  height: 16px;
+}
