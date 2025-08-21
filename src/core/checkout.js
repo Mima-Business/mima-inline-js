@@ -37,10 +37,11 @@ export async function openCheckout(opts) {
     );
   const currencyCode = payload?.order?.currencyCode;
   const modal = createModal({ onClose });
+  modal.open();
 
   // Loading state
   const loadNode = ce("div", "mima-center");
-  loadNode.appendChild(spinner(56));
+  loadNode.appendChild(spinner(75));
   setBodyContent(modal, loadNode);
 
   let invoice;
@@ -68,6 +69,9 @@ export async function openCheckout(opts) {
       setBodyContent(modal, errorNode("Paystack key missing."));
       return;
     }
+
+    modal.close();
+
     try {
       await startPaystack({
         publicKey: pk,
