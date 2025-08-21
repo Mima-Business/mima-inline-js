@@ -90,6 +90,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
   border:none;
   font-weight:600;
   transition: background-color .2s ease;
+  box-sizing: border-box;
 }
 .buttonBase:disabled,
 .mima-btn:disabled,
@@ -161,14 +162,14 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
 /* Options & Stripe */
-.mima-option { display:flex; align-items:center; gap:12px; border:1px solid #eee; padding:12px; border-radius:12px; }
+.mima-option { display:flex; flex-direction: column; align-items: flex-start; gap:12px; border:1px solid #eee; padding:12px; border-radius:12px;}
 .mima-option-logo,
 .logo { height:24px; object-fit:contain; display:block; }
 .mima-option-label,
 .label { display:flex; align-items:center; gap:8px; cursor:pointer; }
 .labelText { font-weight:500; }
 
-.mima-stripe-wrap { display:flex; flex-direction:column; gap:12px; }
+.mima-stripe-wrap { display:flex; flex-direction:column; gap:12px; width: 500px; max-width: 100%; }
 .mima-stripe-mount { padding:8px; border:1px solid #eee; border-radius:12px; }
 .mima-stripe-actions { display:grid; grid-template-columns:150px 1fr; gap:1rem; width:100%; margin-top:12px; }
 

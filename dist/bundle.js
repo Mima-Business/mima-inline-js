@@ -200,6 +200,8 @@
   const TEST_STRIPE_PUBLIC_KEY = "pk_test_51MZRkkCxdM6WOQdWKpad49vDaWdY0xINxv5Rkipm2RZJ0jkYDtD17mpPlWTDdceDJXKDpEeqXeS8Y7GMxu38Lub300QAKMidAd";
   const TEST_PAYSTACK_PUBLIC_KEY = "pk_test_c089002666ab7778df8fe31313c5bba3d6f69914";
   const TEST_BASE_API_URL = "https://dev.trymima.com/v1";
+  const logoUrl =
+    "https://e3bc7d7a5a59a4dca7c1c17bfa0270e4b3.s3.us-east-2.amazonaws.com/e8b61357-334e-4879-90b6-6fbe722cc54c-7e5a1560-43a6-4dea-ac4a-bbbda8598ab3-mima-logo.png";
 
   async function openCheckout(opts) {
     const { payload, signature, testMode = false, onSuccess, onClose } = opts;
@@ -217,7 +219,6 @@
 
     const chosenBase = testMode ? testBaseUrl  : baseUrl;
     console.log("chosenBase", chosenBase);
-    console.log("payload", payload);
 
     if (!chosenBase)
       throw new Error(
@@ -370,9 +371,6 @@
     poweredText.textContent = "Powered by";
     powered.appendChild(poweredText);
 
-    const logoUrl =
-      "https://e3bc7d7a5a59a4dca7c1c17bfa0270e4b3.s3.us-east-2.amazonaws.com/e8b61357-334e-4879-90b6-6fbe722cc54c-7e5a1560-43a6-4dea-ac4a-bbbda8598ab3-mima-logo.png";
-
     // If you have a logo URL available, append it. (See note below)
     {
       const img = document.createElement("img");
@@ -461,7 +459,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
 
 /* Overlay & Modal */
 .mima-scroll-lock { overflow: hidden; }
-.mima-overlay,
+
 .checkoutModal {
   position: fixed;
   top: 0;
@@ -474,6 +472,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
   align-items: center;
   font-family: inherit;
 }
+
 .backdrop {
   position: absolute;
   width: 100%;
@@ -483,7 +482,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
   left: 0;
   z-index: -1;
 }
-.mima-modal,
+
 .modalContent {
     background-color: #fff;
   padding: 30px 20px;
@@ -524,6 +523,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
   border:none;
   font-weight:600;
   transition: background-color .2s ease;
+  box-sizing: border-box;
 }
 .buttonBase:disabled,
 .mima-btn:disabled,
@@ -562,7 +562,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
 .buttonDisabled { opacity:.6; pointer-events:none; }
 
 /* Error + Loading */
-.errorMessage,
+
 .mima-error {
   background:#fff;
   color:#d32f2f;
@@ -595,14 +595,14 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
 /* Options & Stripe */
-.mima-option { display:flex; align-items:center; gap:12px; border:1px solid #eee; padding:12px; border-radius:12px; }
+.mima-option { display:flex; flex-direction: column; align-items: flex-start; gap:12px; border:1px solid #eee; padding:12px; border-radius:12px;}
 .mima-option-logo,
 .logo { height:24px; object-fit:contain; display:block; }
 .mima-option-label,
 .label { display:flex; align-items:center; gap:8px; cursor:pointer; }
 .labelText { font-weight:500; }
 
-.mima-stripe-wrap { display:flex; flex-direction:column; gap:12px; }
+.mima-stripe-wrap { display:flex; flex-direction:column; gap:12px; width: 500px; max-width: 100%; }
 .mima-stripe-mount { padding:8px; border:1px solid #eee; border-radius:12px; }
 .mima-stripe-actions { display:grid; grid-template-columns:150px 1fr; gap:1rem; width:100%; margin-top:12px; }
 
@@ -638,7 +638,6 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
   function renderOption({
     selector,
     title = "Pay with Mima",
-    logoSrc,
     className = "",
     ...checkoutProps
   }) {
@@ -647,7 +646,6 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
     if (!host) throw new Error("PayWithMima: host element not found");
     host.classList.add("mima-option");
     if (className) host.classList.add(...className.split(" "));
-
     const label = ce("label", "mima-option-label");
     const radio = ce("input");
     radio.type = "radio";
@@ -655,11 +653,10 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
     const span = ce("span", "mima-option-text");
     span.textContent = title;
     const img = ce("img", "mima-option-logo");
-    if (logoSrc) img.src = logoSrc;
+    img.src = logoUrl;
     img.alt = "Mima Logo";
 
-    const payWrap = ce("div", "mima-paywrap");
-    const btn = ce("button", "mima-btn");
+    const btn = ce("button", "mima-btn full");
     btn.type = "button";
     btn.textContent = "Pay now";
     btn.style.display = "none";
@@ -670,8 +667,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
     btn.addEventListener("click", () => openCheckout(checkoutProps));
 
     append(label, radio, span);
-    append(host, label, img, payWrap);
-    append(payWrap, btn);
+    append(host, label, img, btn);
   }
 
   function ensureOpts(opts) {

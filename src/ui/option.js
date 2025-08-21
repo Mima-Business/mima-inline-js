@@ -1,10 +1,10 @@
 import { ce, append } from "../core/utils.js";
 import { openCheckout } from "../core/checkout.js";
+import { logoUrl } from "../config.js";
 
 export function renderOption({
   selector,
   title = "Pay with Mima",
-  logoSrc,
   className = "",
   ...checkoutProps
 }) {
@@ -13,7 +13,6 @@ export function renderOption({
   if (!host) throw new Error("PayWithMima: host element not found");
   host.classList.add("mima-option");
   if (className) host.classList.add(...className.split(" "));
-
   const label = ce("label", "mima-option-label");
   const radio = ce("input");
   radio.type = "radio";
@@ -21,11 +20,10 @@ export function renderOption({
   const span = ce("span", "mima-option-text");
   span.textContent = title;
   const img = ce("img", "mima-option-logo");
-  if (logoSrc) img.src = logoSrc;
+  if (logoUrl) img.src = logoUrl;
   img.alt = "Mima Logo";
 
-  const payWrap = ce("div", "mima-paywrap");
-  const btn = ce("button", "mima-btn");
+  const btn = ce("button", "mima-btn full");
   btn.type = "button";
   btn.textContent = "Pay now";
   btn.style.display = "none";
@@ -36,6 +34,5 @@ export function renderOption({
   btn.addEventListener("click", () => openCheckout(checkoutProps));
 
   append(label, radio, span);
-  append(host, label, img, payWrap);
-  append(payWrap, btn);
+  append(host, label, img, btn);
 }
