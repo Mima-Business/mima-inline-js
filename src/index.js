@@ -11,14 +11,22 @@ function ensureOpts(opts) {
 }
 
 export const MimaCheckout = {
-  open: (opts) => openCheckout(ensureOpts(opts)),
-  renderButton: (opts) => renderButton(ensureOpts(opts)),
-  renderOption: (opts) => renderOption(ensureOpts(opts)),
+  open: (opts) => {
+    injectStyles();
+    return openCheckout(ensureOpts(opts));
+  },
+  renderButton: (opts) => {
+    injectStyles();
+    return renderButton(ensureOpts(opts));
+  },
+  renderOption: (opts) => {
+    injectStyles();
+    return renderOption(ensureOpts(opts));
+  },
 };
 
 // UMD-style global attach
 if (typeof window !== "undefined") {
-  injectStyles();
   window.MimaCheckout = MimaCheckout;
 }
 

@@ -1,15 +1,23 @@
 {
-  "name": "inline",
+  "name": "mima-inline-js",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Official Javascript packages for Mima payment APIs",
+  "type": "module",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "unpkg": "dist/inline.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "types": "dist/index.d.ts",
   "scripts": {
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:prod": "rollup -c --environment NODE_ENV:production"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Mima Developers",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.6",

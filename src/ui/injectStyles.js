@@ -1,9 +1,7 @@
 // src/injectStyles.js
-let injected = false;
 
 export function injectStyles() {
-  if (injected) return;
-  injected = true;
+  if (document.getElementById("mima-styles")) return;
 
   const css = `
 * {
@@ -198,6 +196,7 @@ h1,h2,h3,h4,h5,h6 { font-weight: 600; }
 `;
 
   const styleEl = document.createElement("style");
+  styleEl.id = "mima-styles"; // unique id
   styleEl.textContent = css;
   document.head.appendChild(styleEl);
 }

@@ -1,17 +1,34 @@
 import replace from "@rollup/plugin-replace";
 import dotenv from "dotenv";
-import url from "@rollup/plugin-url";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import { terser } from "rollup-plugin-terser";
 
 dotenv.config();
 
 export default {
   input: "src/index.js",
-  output: {
-    file: "dist/bundle.js",
-    format: "umd",
-    name: "MimaCheckout",
-  },
+  output: [
+    {
+      file: "dist/inline.js",
+      format: "umd",
+      name: "MimaCheckout", // exposes window.MimaCheckout
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.esm.js",
+      format: "esm",
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.cjs.js",
+      format: "cjs",
+      sourcemap: true,
+    },
+  ],
   plugins: [
+    resolve(),
+    commonjs(),
     replace({
       preventAssignment: true,
       "process.env.STRIPE_PUBLIC_KEY": JSON.stringify(
@@ -31,5 +48,6 @@ export default {
         process.env.TEST_BASE_API_URL
       ),
     }),
+    terser(),
   ],
 };
