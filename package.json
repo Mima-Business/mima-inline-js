@@ -1,5 +1,5 @@
 {
-  "name": "mimapay-inline-js",
+  "name": "mima-inline-js",
   "version": "1.0.0",
   "description": "Official Javascript packages for Mima payment APIs",
   "type": "module",
