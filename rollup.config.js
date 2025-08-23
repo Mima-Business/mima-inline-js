@@ -10,7 +10,7 @@ export default {
   input: "src/index.js",
   output: [
     {
-      file: "dist/inline.js",
+      file: "dist/v1/inline.js",
       format: "umd",
       name: "MimaCheckout", // exposes window.MimaCheckout
       sourcemap: true,
