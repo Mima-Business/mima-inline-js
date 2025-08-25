@@ -29,7 +29,6 @@ export async function openCheckout(opts) {
   };
 
   const chosenBase = testMode ? testBaseUrl || baseUrl : baseUrl;
-  console.log("chosenBase", chosenBase);
 
   if (!chosenBase)
     throw new Error(
@@ -112,6 +111,7 @@ export async function openCheckout(opts) {
         },
       });
     } catch (e) {
+      modal.open();
       setBodyContent(modal, errorNode(e.message));
     }
     return;

@@ -19,8 +19,8 @@ export async function startPaystack({
     email,
     amount: Math.round(amount * 100),
     metadata,
-    callback: function () {
-      onSuccess && onSuccess();
+    callback: function (response) {
+      onSuccess && onSuccess(response?.reference);
     },
     onClose: function () {
       onClose && onClose();

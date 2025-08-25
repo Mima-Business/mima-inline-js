@@ -20,3 +20,54 @@ export async function createInvoiceSession({
   }
   return data; // Expecting shape of InvoiceResponse from your backend
 }
+
+export async function createSubscriptionSession({ baseUrl, path, payload }) {
+  const url = `${baseUrl}${path}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok || data?.error) {
+    const msg = data?.message || "Something went wrong. Please try again.";
+    throw new Error(msg);
+  }
+  return data;
+}
+
+export async function createCustomerSession({ baseUrl, path, payload }) {
+  const url = `${baseUrl}${path}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok || data?.error) {
+    const msg = data?.message || "Something went wrong. Please try again.";
+    throw new Error(msg);
+  }
+  return data;
+}
+
+export async function saveCardSession({ baseUrl, path, payload }) {
+  const url = `${baseUrl}${path}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok || data?.error) {
+    const msg = data?.message || "Something went wrong. Please try again.";
+    throw new Error(msg);
+  }
+  return data;
+}
