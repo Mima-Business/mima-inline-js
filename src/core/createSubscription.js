@@ -21,7 +21,6 @@ export async function createSubscription({
   loadNode.appendChild(spinner(75));
   setBodyContent(modal, loadNode);
 
-  modal.close();
   try {
     subscription = await createSubscriptionSession({
       baseUrl,
@@ -29,8 +28,8 @@ export async function createSubscription({
       payload,
     });
 
+    modal.close();
     onSuccess();
-    console.log("subscription", subscription);
   } catch (e) {
     modal.open();
     const err = ce("div", "mima-error");

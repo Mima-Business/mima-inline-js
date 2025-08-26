@@ -1,6 +1,6 @@
 import { openCheckout } from "./core/checkout.js";
 import { openSubscribe } from "./core/subscribe.js";
-import { renderButton } from "./ui/button.js";
+import { renderButton, renderSubButton } from "./ui/button.js";
 import { injectStyles } from "./ui/injectStyles.js";
 import { renderOption } from "./ui/option.js";
 
@@ -37,6 +37,10 @@ export const MimaSubscribe = {
   open: (opts) => {
     injectStyles();
     return openSubscribe(ensureSubOpts(opts));
+  },
+  renderButton: (opts) => {
+    injectStyles();
+    return renderSubButton(ensureSubOpts(opts));
   },
 };
 

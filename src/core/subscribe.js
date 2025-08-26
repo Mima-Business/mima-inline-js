@@ -10,11 +10,7 @@ import {
 import { startPaystack } from "./paystack.js";
 import { createModal, setBodyContent } from "../ui/modal.js";
 import { spinner } from "../ui/spinner.js";
-import {
-  createCustomerSession,
-  createSubscriptionSession,
-  saveCardSession,
-} from "./api.js";
+import { createCustomerSession, saveCardSession } from "./api.js";
 import { ce } from "./utils.js";
 import { createSubscription } from "./createSubscription.js";
 
@@ -27,8 +23,6 @@ export async function openSubscribe(opts) {
     );
   }
   const currencyCode = payload?.currencyCode;
-
-  console.log("payload", payload);
 
   const baseUrl = BASE_API_URL;
   const testBaseUrl = TEST_BASE_API_URL;
@@ -78,8 +72,6 @@ export async function openSubscribe(opts) {
     return;
   }
 
-  console.log("customer", customer);
-
   if (customer?.customer?.fullname && currencyCode === "NGN") {
     const pk = testMode
       ? testPaystackPublicKey || paystackPublicKey
@@ -92,11 +84,12 @@ export async function openSubscribe(opts) {
 
     modal.close();
 
-    console.log("customerPayload", customerPayload);
+    let saveCard;
 
     try {
       await startPaystack({
         publicKey: pk,
+        channels: ["card"],
         email: payload?.customer?.email,
         amount: payload?.amount,
         metadata: {
@@ -129,9 +122,8 @@ export async function openSubscribe(opts) {
           ],
         },
         onSuccess: async (reference) => {
-          console.log("reference", reference);
           try {
-            const saveCard = await saveCardSession({
+            saveCard = await saveCardSession({
               baseUrl: chosenBase,
               path: urls.saveCard,
               payload: {
@@ -140,10 +132,7 @@ export async function openSubscribe(opts) {
               },
             });
 
-            console.log("saveCard", saveCard);
-
             if (saveCard?.card) {
-              console.log("started subbing");
               await createSubscription({
                 baseUrl: chosenBase,
                 path: urls.subscribe,
@@ -152,8 +141,8 @@ export async function openSubscribe(opts) {
                   customer: payload?.customer,
                   publicKey: payload?.publicKey,
                 },
-                onClose: onClose && onClose(),
-                onSuccess: onSuccess && onSuccess(),
+                onClose: onClose,
+                onSuccess: onSuccess,
               });
             }
           } catch (e) {
@@ -166,7 +155,9 @@ export async function openSubscribe(opts) {
           modal.close();
         },
         onClose: () => {
-          onClose && onClose();
+          if (!saveCard?.card) {
+            onClose && onClose();
+          }
           modal.close();
         },
       });
@@ -176,6 +167,4 @@ export async function openSubscribe(opts) {
     }
     return;
   }
-
-  //   console.log("subscription", subscription);
 }
