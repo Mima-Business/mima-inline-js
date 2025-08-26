@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./src/assets/mima-logo.png" alt="Diagram" width="200"/>
+  <img src="./src/assets/img/mima-logo.png" alt="Mimapay Africa" width="200"/>
 </p>
 
 # Mima Inline JS
@@ -29,12 +29,13 @@ This SDK works with any frontend framework (React, Vue, Angular) or plain HTML/J
 1. [Requirements](#requirements)
 2. [Installation](#installation)
 3. [Usage](#usage)
-4. [Parameters](#parameters)
-5. [Support](#support)
-6. [Contribution Guidelines](#contribution-guidelines)
-7. [License](#license)
-8. [Contributors](#contributors)
-9. [Changelog](#)
+4. [Checkout Parameters](#checkout-parameters)
+5. [Subscription Parameters](#subscription-parameters)
+6. [Support](#support)
+7. [Contribution Guidelines](#contribution-guidelines)
+8. [License](#license)
+9. [Contributors](#contributors)
+10. [Changelog](#)
 
 ---
 
@@ -73,6 +74,7 @@ Add Mima pay to your projects as a component or function:
 1. [As a function ](#function)
 2. [As a component with selection UI](#components)
 3. [As a pre-styled button](#button)
+4. [For recurring payments or subscriptions](#subscriptions)
 
 ### Function
 
@@ -111,7 +113,6 @@ Use this method in your html and also ensure the mima inline script tag has been
       shipping: 200,
       orderId: "ORDER123456",
     },
-    callBackUrl: "www.google.com",
   };
 
   function checkout() {
@@ -166,7 +167,6 @@ export default function App() {
       shipping: 200,
       orderId: "ORDER123456",
     },
-    callBackUrl: "www.google.com",
   };
 
   const mimaConfig = {
@@ -228,7 +228,6 @@ Ensure to include an empty div with a **unique id** where the ui will render. Al
       shipping: 200,
       orderId: "ORDER123456",
     },
-    callBackUrl: "www.google.com",
   };
 
   const option = MimaCheckout.renderOption({
@@ -275,7 +274,6 @@ export default function App() {
       shipping: 200,
       orderId: "ORDER123456",
     },
-    callBackUrl: "www.google.com",
   };
 
   const mimaConfig = {
@@ -343,7 +341,6 @@ Ensure to include an empty div with a **unique id** where the ui will render. Al
       shipping: 200,
       orderId: "ORDER123456",
     },
-    callBackUrl: "www.google.com",
   };
 
   const checkout = MimaCheckout.renderButton({
@@ -391,7 +388,6 @@ export default function App() {
       shipping: 200,
       orderId: "ORDER123456",
     },
-    callBackUrl: "www.google.com",
   };
 
   const mimaConfig = {
@@ -422,9 +418,9 @@ export default function App() {
 }
 ```
 
-## Parameters
+## Checkout Parameters
 
-Read about our parameters and how they can be used
+Read about our checkout parameters and how they can be used
 
 | Parameter | Always Required ? | Description                                                                                                                                                                           |
 | --------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -437,12 +433,11 @@ Read about our parameters and how they can be used
 
 ### Payload Parameters
 
-| Parameter   | Always Required? | Description                      |
-| ----------- | ---------------- | -------------------------------- |
-| customer    | Yes              | Customer Information             |
-| order       | Yes              | Order Information                |
-| publicKey   | Yes              | Your API public key              |
-| callBackUrl | No               | Your webhook to send information |
+| Parameter | Always Required? | Description          |
+| --------- | ---------------- | -------------------- |
+| customer  | Yes              | Customer Information |
+| order     | Yes              | Order Information    |
+| publicKey | Yes              | Your API public key  |
 
 ### Customer Parameters
 
@@ -475,6 +470,115 @@ Items is an array of objects with these properties
 | item      | Yes              | Name of the product or service        |
 | quantity  | Yes              | Number of units being purchased       |
 | unitPrice | Yes              | Price per unit (in selected currency) |
+
+### Subscriptions
+
+For subscriptions, the SDK integration is similar to the previous methods above. You may either call it directly as a function within your code, or render it as a pre-built button component. Both approaches support the same configuration options, so you can choose whichever method best fits your workflow.
+
+Ensure you have created plans inside the mimapay app for the subscriptions you intend to charge.
+
+#### Subscription Function
+
+```html
+<h1>Subscribe</h1>
+<button id="my-sub" style="margin: 20px">Pay now</button>
+
+<script>
+  const customer = {
+    fullname: "John Doe",
+    email: "john@example.com",
+    mobile: "08012345678",
+  };
+
+  const payload = {
+    customer,
+    plan: "68ac6b678120074a2fd0e2bf",
+    amount: 200,
+    currencyCode: "NGN",
+    publicKey: "fd86a********************4",
+  };
+
+  function mySubscription() {
+    MimaSubscribe.open({
+      payload,
+      onSuccess: () => alert("Payment Successful"),
+      onClose: () => console.log("Closed"),
+      testMode: testMode,
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("my-sub");
+    if (btn) {
+      btn.addEventListener("click", mySubscription);
+    }
+  });
+</script>
+```
+
+#### Subscription Button
+
+Create an empty div with a unique id value, this is where the button will show up
+
+```html
+<h1>Subscribe</h1>
+<div id="mima-sub"></div>
+
+<script>
+  const customer = {
+    fullname: "John Doe",
+    email: "john@example.com",
+    mobile: "08012345678",
+  };
+
+  const payload = {
+    customer,
+    plan: "68ac6b678120074a2fd0e2bf",
+    amount: 200,
+    currencyCode: "NGN",
+    publicKey: "fd86a********************4",
+  };
+
+  const subscribe = MimaSubscribe.renderButton({
+    selector: "#mima-sub",
+    payload,
+    onSuccess: () => alert("Payment Successful"),
+    onClose: () => console.log("Closed"),
+  });
+</script>
+```
+
+## Subscription Parameters
+
+Read about our checkout parameters and how they can be used
+
+| Parameter | Always Required ? | Description                                                                                                                                                                                    |
+| --------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| payload   | Yes               | customer information, plan details and others                                                                                                                                                  |
+| onSuccess | No                | A function of your desired action once a payment is successful                                                                                                                                 |
+| onClose   | No                | A function of your desired action once a payment is canceled                                                                                                                                   |
+| testMode  | No                | A boolean value to enable test mode. If not included value defaults to false                                                                                                                   |
+| title     | No                | A string value to change the button title when used as a Button . If not included value defaults to **Pay now**                                                                                |
+| selector  | No                | A string id value equivalent to the id given to the empty div if the id in the div is 'mima-sub', **then the selector will be '#mima-sub'**, Selector is required when using the render button |
+
+### Payload Parameters
+
+| Parameter    | Always Required? | Description                                |
+| ------------ | ---------------- | ------------------------------------------ |
+| customer     | Yes              | Customer Information                       |
+| plan         | Yes              | Plan Id (copy from inside the mimapay app) |
+| publicKey    | Yes              | Your API public key                        |
+| amount       | Yes              | Amount to charge                           |
+| currencyCode | Yes              | currency to charge in (NGN or USD)         |
+
+### Customer Parameters
+
+| Parameter | Always Required? | Description                    |
+| --------- | ---------------- | ------------------------------ |
+| fullname  | Yes              | Full name of the customer      |
+| email     | Yes              | Email address of the customer  |
+| mobile    | No               | Customer's mobile phone number |
+| address   | No               | Street address of the customer |
 
 ## Debugging Errors
 
