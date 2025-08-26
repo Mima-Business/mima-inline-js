@@ -492,7 +492,7 @@ Ensure you have created plans inside the mimapay app for the subscriptions you i
 
   const payload = {
     customer,
-    plan: "68ac6b678120074a2fd0e2bf",
+    plan: "68a*******2bf",
     amount: 200,
     currencyCode: "NGN",
     publicKey: "fd86a********************4",
@@ -533,7 +533,7 @@ Create an empty div with a unique id value, this is where the button will show u
 
   const payload = {
     customer,
-    plan: "68ac6b678120074a2fd0e2bf",
+    plan: "68a*******2bf",
     amount: 200,
     currencyCode: "NGN",
     publicKey: "fd86a********************4",

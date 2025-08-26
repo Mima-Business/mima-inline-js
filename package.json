@@ -1,6 +1,6 @@
 {
   "name": "mima-inline-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Official Javascript package for Mima payment APIs",
   "type": "module",
   "main": "dist/index.cjs.js",
