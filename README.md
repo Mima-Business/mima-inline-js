@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./src/assets/img/mima-logo.png" alt="Mimapay Africa" width="200"/>
+  <img src="./src/assets/mima-logo.png" alt="Mimapay Africa" width="200"/>
 </p>
 
 # Mima Inline JS
@@ -493,8 +493,6 @@ Ensure you have created plans inside the mimapay app for the subscriptions you i
   const payload = {
     customer,
     plan: "68a*******2bf",
-    amount: 200,
-    currencyCode: "NGN",
     publicKey: "fd86a********************4",
   };
 
@@ -503,7 +501,6 @@ Ensure you have created plans inside the mimapay app for the subscriptions you i
       payload,
       onSuccess: () => alert("Payment Successful"),
       onClose: () => console.log("Closed"),
-      testMode: testMode,
     });
   }
 
@@ -534,8 +531,6 @@ Create an empty div with a unique id value, this is where the button will show u
   const payload = {
     customer,
     plan: "68a*******2bf",
-    amount: 200,
-    currencyCode: "NGN",
     publicKey: "fd86a********************4",
   };
 
@@ -563,13 +558,11 @@ Read about our checkout parameters and how they can be used
 
 ### Payload Parameters
 
-| Parameter    | Always Required? | Description                                |
-| ------------ | ---------------- | ------------------------------------------ |
-| customer     | Yes              | Customer Information                       |
-| plan         | Yes              | Plan Id (copy from inside the mimapay app) |
-| publicKey    | Yes              | Your API public key                        |
-| amount       | Yes              | Amount to charge                           |
-| currencyCode | Yes              | currency to charge in (NGN or USD)         |
+| Parameter | Always Required? | Description                                |
+| --------- | ---------------- | ------------------------------------------ |
+| customer  | Yes              | Customer Information                       |
+| plan      | Yes              | Plan Id (copy from inside the mimapay app) |
+| publicKey | Yes              | Your API public key                        |
 
 ### Customer Parameters
 

@@ -10,18 +10,17 @@ import {
 import { startPaystack } from "./paystack.js";
 import { createModal, setBodyContent } from "../ui/modal.js";
 import { spinner } from "../ui/spinner.js";
-import { createCustomerSession, saveCardSession } from "./api.js";
+import {
+  createCustomerSession,
+  getPlanDetails,
+  saveCardSession,
+} from "./api.js";
 import { ce } from "./utils.js";
 import { createSubscription } from "./createSubscription.js";
 
 export async function openSubscribe(opts) {
   const { payload, signature, testMode = false, onSuccess, onClose } = opts;
 
-  if (!payload.currencyCode || !payload.amount) {
-    throw new Error(
-      "MimaSubscribe: `currencyCode` and `amount` are required in payload."
-    );
-  }
   const currencyCode = payload?.currencyCode;
 
   const baseUrl = BASE_API_URL;
@@ -34,6 +33,7 @@ export async function openSubscribe(opts) {
     subscribe: "/business-subscription/subscribe",
     createCustomer: "/customers/external-customer",
     saveCard: "/customers/add-customer-card",
+    planInfo: "/business-subscription/external/plan",
   };
 
   const chosenBase = testMode ? testBaseUrl || baseUrl : baseUrl;
@@ -72,7 +72,24 @@ export async function openSubscribe(opts) {
     return;
   }
 
-  if (customer?.customer?.fullname && currencyCode === "NGN") {
+  let planDetails;
+
+  try {
+    planDetails = await getPlanDetails({
+      baseUrl: chosenBase,
+      path: urls.planInfo,
+      plan: payload?.plan,
+      publicKey: payload?.publicKey,
+    });
+  } catch (e) {
+    modal.open();
+    const err = ce("div", "mima-error");
+    err.textContent = e.message;
+    setBodyContent(modal, err);
+    return;
+  }
+
+  if (customer?.customer?.fullname && planDetails?.currencyCode === "NGN") {
     const pk = testMode
       ? testPaystackPublicKey || paystackPublicKey
       : paystackPublicKey;
@@ -91,29 +108,9 @@ export async function openSubscribe(opts) {
         publicKey: pk,
         channels: ["card"],
         email: payload?.customer?.email,
-        amount: payload?.amount,
+        amount: planDetails?.amount,
         metadata: {
           custom_fields: [
-            // {
-            //   display_name: "business",
-            //   variable_name: "business",
-            //   value: subscription?.business?._id,
-            // },
-            // {
-            //   display_name: "planName",
-            //   variable_name: "planName",
-            //   value: subscription?.plan?.name,
-            // },
-            // {
-            //   display_name: "customerName",
-            //   variable_name: "customerName",
-            //   value: subscription?.customer?.fullname,
-            // },
-            // {
-            //   display_name: "plan",
-            //   variable_name: "plan",
-            //   value: invoice?.plan?._id,
-            // },
             {
               display_name: "type",
               variable_name: "type",

@@ -71,3 +71,19 @@ export async function saveCardSession({ baseUrl, path, payload }) {
   }
   return data;
 }
+
+export async function getPlanDetails({ baseUrl, path, plan, publicKey }) {
+  const url = `${baseUrl}${path}?publicKey=${publicKey}&id=${plan}`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+  if (!res.ok || data?.error) {
+    const msg = data?.message || "Something went wrong. Please try again.";
+    throw new Error(msg);
+  }
+  return data;
+}
