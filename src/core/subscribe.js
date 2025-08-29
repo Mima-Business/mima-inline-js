@@ -110,13 +110,16 @@ export async function openSubscribe(opts) {
         email: payload?.customer?.email,
         amount: planDetails?.amount,
         metadata: {
-          custom_fields: [
-            {
-              display_name: "type",
-              variable_name: "type",
-              value: "SUBSCRIPTION",
-            },
-          ],
+          business: customer?.customer?.business,
+          customer: customer?.customer?._id,
+          type: "BUSINESS-SUBSCRIPTION",
+          // custom_fields: [
+          //   {
+          //     display_name: "type",
+          //     variable_name: "type",
+          //     value: "SUBSCRIPTION",
+          //   },
+          // ],
         },
         onSuccess: async (reference) => {
           try {
